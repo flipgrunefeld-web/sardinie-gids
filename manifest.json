@@ -1,0 +1,26 @@
+{
+  "name": "Sardegna Gids",
+  "short_name": "Sardegna",
+  "description": "Italiaans voor onderweg – bezienswaardigheden en campings op Sardinië",
+  "start_url": "/sardinie-gids/sardinie-gids.html",
+  "scope": "/sardinie-gids/",
+  "display": "standalone",
+  "background_color": "#0f1117",
+  "theme_color": "#c8622a",
+  "orientation": "portrait",
+  "lang": "nl",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

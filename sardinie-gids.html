@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sardegna Gids</title>
+
+<!-- PWA: Manifest & App Meta -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#c8622a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sardegna Gids">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&amp;family=DM+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+:root {
+  --bg: #0f1117;
+  --bg2: #181c26;
+  --bg3: #1f2435;
+  --terra: #c8622a;
+  --terra-light: #e07840;
+  --gold: #d4a843;
+  --sea: #2a7fad;
+  --cream: #f0e6d3;
+  --cream-dim: #a89880;
+  --text: #e8ddd0;
+  --muted: #6b6458;
+  --green: #4a8c5c;
+  --red: #b84040;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, #1a0e08 0%, #2a1810 50%, #0d1a2a 100%);
+  padding: 20px 20px 16px;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 120px; height: 120px;
+  background: radial-gradient(circle, rgba(200,98,42,0.2) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.header-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+.header-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--cream);
+  line-height: 1.1;
+}
+.header-sub {
+  font-size: 0.75rem;
+  color: var(--terra-light);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* SEARCH */
+.search-wrap {
+  position: relative;
+}
+.search-input {
+  width: 100%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(200,98,42,0.3);
+  border-radius: 12px;
+  padding: 10px 16px 10px 40px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-input::placeholder { color: var(--muted); }
+.search-input:focus { border-color: var(--terra); }
+.search-icon {
+  position: absolute;
+  left: 14px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* TABS */
+.tabs-wrap {
+  display: flex;
+  align-items: center;
+  background: var(--bg2);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.tab-arrow {
+  flex-shrink: 0;
+  background: var(--bg3);
+  border: none;
+  color: var(--terra-light);
+  font-size: 1.4rem;
+  width: 28px;
+  height: 100%;
+  min-height: 52px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+.tab-arrow:hover { background: rgba(200,98,42,0.2); }
+
+.tabs {
+  display: flex;
+  overflow-x: auto;
+  flex: 1;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex-shrink: 0;
+  padding: 10px 14px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  letter-spacing: 0.3px;
+}
+.tab .tab-icon { font-size: 1.1rem; }
+.tab.active { color: var(--terra-light); border-bottom-color: var(--terra); }
+.tab:hover:not(.active) { color: var(--cream-dim); }
+
+/* CONTENT */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 20px;
+}
+
+.section { display: none; padding: 16px; }
+.section.active { display: block; }
+
+/* PHRASE CARDS */
+.phrase-card {
+  background: var(--bg2);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: border-color 0.15s;
+}
+.phrase-card:active { border-color: rgba(200,98,42,0.4); }
+.phrase-text { flex: 1; }
+.phrase-nl {
+  font-size: 0.82rem;
+  color: var(--cream-dim);
+  margin-bottom: 4px;
+  font-weight: 400;
+}
+.phrase-it {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--cream);
+  margin-bottom: 2px;
+  font-family: 'Cormorant Garamond', serif;
+}
+.phrase-en {
+  font-size: 0.78rem;
+  color: #5b9bd5;
+  margin-bottom: 4px;
+  font-style: italic;
+}
+.phrase-ph {
+  font-size: 0.78rem;
+  color: var(--terra-light);
+  font-style: italic;
+  margin-bottom: 0;
+}
+.phrase-ans-wrap {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.phrase-ans-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+.phrase-ans-it {
+  font-size: 0.88rem;
+  color: #6ecf8a;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.phrase-ans-en {
+  font-size: 0.75rem;
+  color: #4a8a6a;
+  font-style: italic;
+}
+.speak-btn-small {
+  background: rgba(200,98,42,0.15);
+  border: 1px solid rgba(200,98,42,0.3);
+  border-radius: 10px;
+  color: var(--terra-light);
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: all 0.15s;
+}
+.speak-btn-small:active { background: rgba(200,98,42,0.35); transform: scale(0.94); }
+
+/* SECTION HEADER */
+.sec-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  margin-top: 4px;
+}
+.sec-icon { font-size: 1.4rem; }
+.sec-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--cream);
+}
+
+/* CUSTOMS CARDS */
+.custom-card {
+  background: var(--bg2);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 10px;
+  border-left: 3px solid var(--terra);
+}
+.custom-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--terra-light);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.custom-text {
+  font-size: 0.87rem;
+  color: var(--cream-dim);
+  line-height: 1.6;
+}
+.custom-text strong { color: var(--cream); }
+
+/* CATEGORY LABEL */
+.cat-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 18px 0 8px;
+}
+.cat-label:first-of-type { margin-top: 0; }
+
+/* TIP BOX */
+.tip-box {
+  background: rgba(42,127,173,0.1);
+  border: 1px solid rgba(42,127,173,0.3);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  font-size: 0.82rem;
+  color: #7ec8e8;
+  line-height: 1.5;
+}
+.tip-box strong { color: #aadff5; }
+
+/* NUMBERS GRID */
+.num-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.num-cell {
+  background: var(--bg2);
+  border-radius: 10px;
+  padding: 10px 6px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.num-n { font-size: 1.1rem; font-weight: 700; color: var(--terra-light); }
+.num-w { font-size: 0.72rem; color: var(--cream-dim); margin-top: 2px; }
+
+/* SEARCH RESULTS */
+#searchResults { display: none; padding: 16px; }
+.no-results { text-align: center; color: var(--muted); padding: 40px 0; font-size: 0.9rem; }
+
+/* SIGHTS CARDS */
+.sight-card { background: var(--bg2); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.04); }
+.sight-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+.sight-num { background: var(--terra); color: white; font-size: 0.68rem; font-weight: 700; border-radius: 6px; padding: 2px 7px; flex-shrink: 0; margin-top: 3px; }
+.sight-name { font-weight: 600; font-size: 1rem; color: var(--cream); line-height: 1.3; }
+.sight-location { font-size: 0.75rem; color: var(--terra-light); margin-bottom: 6px; font-weight: 500; }
+.sight-desc { font-size: 0.83rem; color: var(--cream-dim); line-height: 1.6; }
+.sight-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.sight-tag { background: rgba(200,98,42,0.12); border: 1px solid rgba(200,98,42,0.2); color: var(--terra-light); font-size: 0.68rem; border-radius: 20px; padding: 2px 8px; font-weight: 500; }
+
+/* CAMPING CARDS */
+.camp-card { background: var(--bg2); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.04); }
+.camp-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+.camp-num { background: var(--green); color: white; font-size: 0.68rem; font-weight: 700; border-radius: 6px; padding: 2px 7px; flex-shrink: 0; margin-top: 3px; }
+.camp-name { font-weight: 600; font-size: 1rem; color: var(--cream); line-height: 1.3; }
+.camp-location { font-size: 0.75rem; color: #6ecf8a; margin-bottom: 6px; font-weight: 500; }
+.camp-desc { font-size: 0.83rem; color: var(--cream-dim); line-height: 1.6; }
+.camp-features { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.camp-feat { background: rgba(74,140,92,0.12); border: 1px solid rgba(74,140,92,0.25); color: #6ecf8a; font-size: 0.68rem; border-radius: 20px; padding: 2px 8px; font-weight: 500; }
+.stars { color: var(--gold); font-size: 0.78rem; margin-top: 1px; }
+.contact-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.contact-link {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(212,168,67,0.12); border: 1px solid rgba(212,168,67,0.3);
+  color: var(--gold); font-size: 0.75rem; border-radius: 20px;
+  padding: 4px 10px; text-decoration: none; font-weight: 500;
+  transition: background 0.15s;
+}
+.contact-link:hover { background: rgba(212,168,67,0.25); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="header-icon">🫒</div>
+    <div style="flex:1">
+      <div class="header-title">Sardegna Gids</div>
+      <div class="header-sub">Italiaans voor onderweg</div>
+    </div>
+    <button id="installBtn" onclick="installApp()" style="display:none;background:rgba(200,98,42,0.2);border:1px solid var(--terra);color:var(--terra-light);border-radius:10px;padding:6px 10px;font-size:0.72rem;font-weight:600;cursor:pointer;flex-shrink:0;align-items:center;gap:4px">
+      📲 Installeer
+    </button>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" type="text" id="searchBox" placeholder="Zoek een woord of zin..." oninput="doSearch(this.value)">
+  </div>
+</div>
+
+<div class="tabs-wrap">
+  <button class="tab-arrow" id="arrowLeft" onclick="scrollTabs(-120)">‹</button>
+  <div class="tabs" id="tabsBar">
+    <div class="tab active" onclick="showTab('basis')"><span class="tab-icon">🗣️</span>Basis</div>
+    <div class="tab" onclick="showTab('camper')"><span class="tab-icon">🚐</span>Camper</div>
+    <div class="tab" onclick="showTab('boodschappen')"><span class="tab-icon">🛒</span>Markt</div>
+    <div class="tab" onclick="showTab('horeca')"><span class="tab-icon">🍷</span>Horeca</div>
+    <div class="tab" onclick="showTab('onderweg')"><span class="tab-icon">⛽</span>Weg</div>
+    <div class="tab" onclick="showTab('nood')"><span class="tab-icon">🏥</span>Nood</div>
+    <div class="tab" onclick="showTab('gewoontes')"><span class="tab-icon">🫶</span>Gewoontes</div>
+    <div class="tab" onclick="showTab('bezienswaardigheden')"><span class="tab-icon">🏛️</span>Top 50</div>
+    <div class="tab" onclick="showTab('campings')"><span class="tab-icon">⛺</span>Campings</div>
+  </div>
+  <button class="tab-arrow" id="arrowRight" onclick="scrollTabs(120)">›</button>
+</div>
+
+<div class="content">
+
+<!-- SEARCH RESULTS -->
+<div id="searchResults"></div>
+
+<!-- BASIS -->
+<div class="section active" id="tab-basis">
+  <div class="sec-header"><span class="sec-icon">🗣️</span><span class="sec-title">Basis & Begroetingen</span></div>
+
+  <div class="cat-label">Begroetingen</div>
+  <div id="phrases-basis"></div>
+
+  <div class="cat-label">Getallen</div>
+  <div class="num-grid" id="num-grid"></div>
+
+  <div class="cat-label">Dagen & Tijd</div>
+  <div id="phrases-dagen"></div>
+</div>
+
+<!-- CAMPER -->
+<div class="section" id="tab-camper">
+  <div class="sec-header"><span class="sec-icon">🚐</span><span class="sec-title">Camper & Kamperen</span></div>
+  <div class="tip-box"><strong>Tip:</strong> Op Sardinië zijn wilde kampeerplaatsen (libero) op veel stranden verboden. Zoek naar <strong>agriturismo</strong> of officiële campings — goedkoop en gezellig.</div>
+  <div id="phrases-camper"></div>
+</div>
+
+<!-- BOODSCHAPPEN -->
+<div class="section" id="tab-boodschappen">
+  <div class="sec-header"><span class="sec-icon">🛒</span><span class="sec-title">Boodschappen & Markt</span></div>
+  <div class="tip-box"><strong>Tip:</strong> Betaal altijd aan de kassa, niet bij de toonbank. Op markten is <strong>contant geld</strong> de norm. Supermarkt heet <em>supermercato</em>.</div>
+  <div id="phrases-boodschappen"></div>
+</div>
+
+<!-- HORECA -->
+<div class="section" id="tab-horeca">
+  <div class="sec-header"><span class="sec-icon">🍷</span><span class="sec-title">Bar & Restaurant</span></div>
+  <div class="tip-box"><strong>Tip:</strong> Italianen drinken cappuccino <strong>alleen \'s ochtends</strong>. Een espresso na het eten is normaal. Aan de bar sta je, aan tafel betaal je meer (<em>coperto</em>).</div>
+  <div id="phrases-horeca"></div>
+</div>
+
+<!-- ONDERWEG -->
+<div class="section" id="tab-onderweg">
+  <div class="sec-header"><span class="sec-icon">⛽</span><span class="sec-title">Onderweg & Brandstof</span></div>
+  <div class="tip-box"><strong>Tip:</strong> Benzinestations op Sardinië sluiten 's middags (13-16u) en op zondag. Vul vroeg bij. <em>Servito</em> = bediend, <em>self</em> = zelf tanken.</div>
+  <div id="phrases-onderweg"></div>
+</div>
+
+<!-- NOOD -->
+<div class="section" id="tab-nood">
+  <div class="sec-header"><span class="sec-icon">🏥</span><span class="sec-title">Nood & Gezondheid</span></div>
+  <div class="tip-box">🚨 <strong>Noodnummer Italië: 112</strong> · Ambulance: 118 · Brandweer: 115 · Politie: 113</div>
+  <div id="phrases-nood"></div>
+</div>
+
+<!-- GEWOONTES -->
+<div class="section" id="tab-gewoontes">
+  <div class="sec-header"><span class="sec-icon">🫶</span><span class="sec-title">Gewoontes & Omgangsvormen</span></div>
+  <div id="customs-list"></div>
+</div>
+
+<!-- BEZIENSWAARDIGHEDEN -->
+<div class="section" id="tab-bezienswaardigheden">
+  <div class="sec-header"><span class="sec-icon">🏛️</span><span class="sec-title">Top 50 Bezienswaardigheden</span></div>
+  <div class="tip-box"><strong>Tip:</strong> Sardinië is groot — plan per regio. Noord: La Maddalena, Alghero, Castelsardo. Oost: Golfo di Orosei, Cala Gonone. Midden: Barumini, Gennargentu. Zuid: Cagliari, Villasimius, Chia.</div>
+  <div id="sights-list"></div>
+</div>
+
+<!-- CAMPINGS -->
+<div class="section" id="tab-campings">
+  <div class="sec-header"><span class="sec-icon">⛺</span><span class="sec-title">Top 25 Camper Campings</span></div>
+  <div class="tip-box"><strong>Let op:</strong> Wilde camping (<em>libero</em>) is verboden op Sardinië. Boek vooruit in juli/augustus — campings zitten dan vol. Buiten hoogseizoen (mei/juni/sept) veel rustiger en goedkoper.</div>
+  <div id="campings-list"></div>
+</div>
+
+</div><!-- end content -->
+
+<script>
+// ===================== DATA =====================
+const phrases = {
+  basis: [
+    { nl: 'Hallo / Dag', it: 'Ciao', en: 'Hi / Bye', ph: 'tsjauw', ans: 'Ciao!', ansen: 'Hi!' },
+    { nl: 'Goedemorgen', it: 'Buongiorno', en: 'Good morning', ph: 'bwon-DJORno', ans: 'Buongiorno!', ansen: 'Good morning!' },
+    { nl: 'Goedemiddag / -avond', it: 'Buonasera', en: 'Good afternoon / evening', ph: 'bwona-SEra', ans: 'Buonasera!', ansen: 'Good evening!' },
+    { nl: 'Tot ziens', it: 'Arrivederci', en: 'Goodbye', ph: 'arriveDERtsi', ans: 'Arrivederci! / Ciao!', ansen: 'Goodbye! / Bye!' },
+    { nl: 'Alsjeblieft', it: 'Per favore', en: 'Please', ph: 'per faVOre' },
+    { nl: 'Dankjewel', it: 'Grazie', en: 'Thank you', ph: 'GRAtsieh', ans: 'Prego!', ansen: 'You\'re welcome!' },
+    { nl: 'Heel erg bedankt', it: 'Grazie mille', en: 'Thank you very much', ph: 'GRAtsieh MILleh', ans: 'Prego, figurati!', ansen: 'Don\'t mention it!' },
+    { nl: 'Ja / Nee', it: 'Sì / No', en: 'Yes / No', ph: 'sie / no' },
+    { nl: 'Sorry / Pardon', it: 'Scusi', en: 'Excuse me / Sorry', ph: 'SKOEzie', ans: 'Prego! / Non si preoccupi', ansen: 'No problem!' },
+    { nl: 'Geen probleem', it: 'Non c\'è problema', en: 'No problem', ph: 'non tsjeh probLEma' },
+    { nl: 'Spreekt u Engels?', it: 'Parla inglese?', en: 'Do you speak English?', ph: 'PARla inGLEzeh', ans: 'Sì, un po\' / No, mi dispiace', ansen: 'Yes, a little / No, I\'m sorry' },
+    { nl: 'Ik begrijp het niet', it: 'Non capisco', en: 'I don\'t understand', ph: 'non kaPIsko', ans: 'Parla più lentamente?', ansen: 'Can you speak more slowly?' },
+    { nl: 'Kunt u dat herhalen?', it: 'Può ripetere?', en: 'Can you repeat that?', ph: 'pwo riPEtereh', ans: 'Certo! / Sì, certo', ansen: 'Of course!' },
+    { nl: 'Hoe gaat het?', it: 'Come sta? / Come stai?', en: 'How are you?', ph: 'KOmeh sta / KOmeh stai', ans: 'Bene, grazie! E lei?', ansen: 'Fine, thanks! And you?' },
+    { nl: 'Goed, dankjewel', it: 'Bene, grazie', en: 'Fine, thank you', ph: 'BEneh GRAtsieh' },
+    { nl: 'Hoe heet u?', it: 'Come si chiama?', en: 'What is your name?', ph: 'KOmeh sie KIAma', ans: 'Mi chiamo...', ansen: 'My name is...' },
+    { nl: 'Ik heet...', it: 'Mi chiamo...', en: 'My name is...', ph: 'mie KIAmo', ans: 'Piacere!', ansen: 'Nice to meet you!' },
+    { nl: 'Ik kom uit Nederland', it: 'Vengo dall\'Olanda', en: 'I come from the Netherlands', ph: 'VENgo dal oLANda', ans: 'Ah, olandese! Benvenuto!', ansen: 'Ah, Dutch! Welcome!' },
+  ],
+  dagen: [
+    { nl: 'Vandaag', it: 'Oggi', en: 'Today', ph: 'ODjie' },
+    { nl: 'Morgen', it: 'Domani', en: 'Tomorrow', ph: 'doMAnie' },
+    { nl: 'Gisteren', it: 'Ieri', en: 'Yesterday', ph: 'IErie' },
+    { nl: 'Maandag t/m Zondag', it: 'Lunedì · Martedì · Mercoledì · Giovedì · Venerdì · Sabato · Domenica', en: 'Mon · Tue · Wed · Thu · Fri · Sat · Sun', ph: 'loene / marte / merkole / dzjove / venner / SABato / doMEnnika' },
+    { nl: 'Hoe laat is het?', it: 'Che ore sono?', en: 'What time is it?', ph: 'keh OReh SONno', ans: 'Sono le... / È l\'una', ansen: 'It\'s... o\'clock / It\'s one o\'clock' },
+    { nl: 'Om ... uur', it: 'Alle... (ore)', en: 'At ... o\'clock', ph: 'ALleh OReh' },
+    { nl: 'Geopend / Gesloten', it: 'Aperto / Chiuso', en: 'Open / Closed', ph: 'aPERto / KIOEzo' },
+    { nl: 'Openingstijden', it: 'Orario di apertura', en: 'Opening hours', ph: 'oRArjo die aperTOEra', ans: 'Dalle 9 alle 18', ansen: 'From 9 to 18' },
+  ],
+  camper: [
+    { nl: 'Waar is de camping?', it: 'Dov\'è il campeggio?', en: 'Where is the campsite?', ph: 'doVEH il camPEDjo', ans: 'È a... / Segua questa strada', ansen: 'It\'s at... / Follow this road' },
+    { nl: 'Heeft u een plek voor een camper?', it: 'Ha un posto per un camper?', en: 'Do you have a spot for a motorhome?', ph: 'a oen POSto per oen CAMper', ans: 'Sì, abbiamo posto / Mi dispiace, siamo al completo', ansen: 'Yes, we have space / Sorry, we\'re full' },
+    { nl: 'Voor ... nachten', it: 'Per ... notti', en: 'For ... nights', ph: 'per ... NOTtie', ans: 'Va bene. Il prezzo è...', ansen: 'OK. The price is...' },
+    { nl: 'Hoeveel kost het per nacht?', it: 'Quanto costa per notte?', en: 'How much per night?', ph: 'KWANto KOSta per NOTteh', ans: '... euro per notte / con corrente è...', ansen: '... euro per night / with electricity it\'s...' },
+    { nl: 'Met elektriciteit', it: 'Con corrente elettrica', en: 'With electricity', ph: 'kon korRENteh eLETtrika' },
+    { nl: 'Waar kan ik water vullen?', it: 'Dove posso riempire l\'acqua?', en: 'Where can I fill up water?', ph: 'DOveh POSso riemPIreh LAKwa', ans: 'Là, vicino ai servizi', ansen: 'There, near the facilities' },
+    { nl: 'Waar is de lozingsplaats?', it: 'Dov\'è lo scarico?', en: 'Where is the dump station?', ph: 'doVEH lo SKAriko', ans: 'In fondo a destra / sinistra', ansen: 'At the back, right / left' },
+    { nl: 'Mag ik hier overnachten?', it: 'Posso parcheggiare qui per la notte?', en: 'Can I park here overnight?', ph: 'POSso parkeDJAreh kwi per la NOTteh', ans: 'Sì, è permesso / No, è vietato', ansen: 'Yes, it\'s allowed / No, it\'s forbidden' },
+    { nl: 'Is dit een privéstrand?', it: 'Questa spiaggia è privata?', en: 'Is this a private beach?', ph: 'KWESta spiaGJA eh priVAta', ans: 'Sì, è privata / No, è pubblica', ansen: 'Yes, it\'s private / No, it\'s public' },
+    { nl: 'WiFi wachtwoord', it: 'Qual è la password del WiFi?', en: 'What is the WiFi password?', ph: 'kwal eh la PASword del wiFI', ans: 'La password è...', ansen: 'The password is...' },
+    { nl: 'Gas (fles)', it: 'Bombola del gas', en: 'Gas bottle', ph: 'bomBOla del gas', ans: 'Possiamo procurarvela / Non la vendiamo', ansen: 'We can get it for you / We don\'t sell it' },
+    { nl: 'Ik zoek een plek in de schaduw', it: 'Cerco un posto all\'ombra', en: 'I\'m looking for a shaded spot', ph: 'TSJERko oen POSto al OMbra', ans: 'Laggiù ci sono posti all\'ombra', ansen: 'Over there are shaded spots' },
+    { nl: 'Camperplaats / Area sosta', it: 'Area sosta camper', en: 'Motorhome stopover area', ph: 'Areh SOSta CAMper' },
+    { nl: 'Afvalcontainer', it: 'Bidone della spazzatura', en: 'Rubbish bin', ph: 'biDOneh DELla spatzaTOEra', ans: 'È all\'entrata / in fondo', ansen: 'It\'s at the entrance / at the back' },
+    { nl: 'Recycling / Scheiding', it: 'Raccolta differenziata', en: 'Waste separation / recycling', ph: 'raCOLta differentsiAta' },
+  ],
+  boodschappen: [
+    { nl: 'Hoeveel kost dit?', it: 'Quanto costa?', en: 'How much is this?', ph: 'KWANto KOSta', ans: 'Costa... euro', ansen: 'It costs... euro' },
+    { nl: 'Te duur', it: 'Troppo caro', en: 'Too expensive', ph: 'TROPpo KAro', ans: 'Posso farle un prezzo migliore', ansen: 'I can give you a better price' },
+    { nl: 'Heeft u...?', it: 'Ha...? / Avete...?', en: 'Do you have...?', ph: 'a / aVEteh', ans: 'Sì, eccolo / No, mi dispiace', ansen: 'Yes, here it is / No, I\'m sorry' },
+    { nl: 'Brood', it: 'Pane', en: 'Bread', ph: 'PANeh' },
+    { nl: 'Water (flesjes)', it: 'Acqua (in bottiglia)', en: 'Water (bottled)', ph: 'AKwa in bottiLJA' },
+    { nl: 'Melk', it: 'Latte', en: 'Milk', ph: 'LATteh' },
+    { nl: 'Eieren', it: 'Uova', en: 'Eggs', ph: 'OEwa' },
+    { nl: 'Kaas (Pecorino!)', it: 'Formaggio / Pecorino', en: 'Cheese / Pecorino', ph: 'forMADjo / pekoRIEno' },
+    { nl: 'Vlees / Vis', it: 'Carne / Pesce', en: 'Meat / Fish', ph: 'KARneh / PEsjeh' },
+    { nl: 'Groenten / Fruit', it: 'Verdura / Frutta', en: 'Vegetables / Fruit', ph: 'verDOEra / FROETta' },
+    { nl: 'Olijfolie', it: 'Olio d\'oliva', en: 'Olive oil', ph: 'Olio doLIEva' },
+    { nl: 'Wijn / Bier', it: 'Vino / Birra', en: 'Wine / Beer', ph: 'VIEno / BIRra' },
+    { nl: 'Zonnebrandcrème', it: 'Crema solare', en: 'Sunscreen', ph: 'KREma soLAreh' },
+    { nl: 'Muggenspray', it: 'Spray antizanzare', en: 'Mosquito repellent', ph: 'spray antidzanZAreh' },
+    { nl: 'Pinnen / Betalen', it: 'Pagare con carta / in contanti', en: 'Pay by card / cash', ph: 'paGAreh kon KARta / in konTANtie', ans: 'Carta sì / Solo contanti', ansen: 'Card OK / Cash only' },
+    { nl: '500 gram / Een kilo', it: 'Mezzo chilo / Un chilo', en: 'Half a kilo / One kilo', ph: 'MEDzo KIElo / oen KIElo' },
+    { nl: 'Een zak graag', it: 'Un sacchetto, per favore', en: 'A bag please', ph: 'oen sakKETto per faVOreh', ans: 'Eccolo! Sono 10 centesimi', ansen: 'Here you go! That\'s 10 cents' },
+  ],
+  horeca: [
+    { nl: 'Een tafel voor twee', it: 'Un tavolo per due', en: 'A table for two', ph: 'oen TAVolo per DOEeh', ans: 'Certo, prego / Deve aspettare', ansen: 'Of course, this way / You\'ll need to wait' },
+    { nl: 'Wij willen ontbijten', it: 'Vorremmo fare colazione', en: 'We\'d like to have breakfast', ph: 'vorREMmo FAreh kolatsiONeh', ans: 'Accomodatevi! Cosa prendete?', ansen: 'Please sit down! What will you have?' },
+    { nl: 'Het menu / De kaart', it: 'Il menu / La carta, per favore', en: 'The menu please', ph: 'il meNOE / la KARta per faVOreh', ans: 'Eccolo il menu!', ansen: 'Here\'s the menu!' },
+    { nl: 'Wat raadt u aan?', it: 'Cosa ci consiglia?', en: 'What do you recommend?', ph: 'KOza tsjie konSILja', ans: 'Le consiglio il pesce fresco / la pasta fatta in casa', ansen: 'I recommend the fresh fish / homemade pasta' },
+    { nl: 'Ik wil bestellen', it: 'Vorrei ordinare', en: 'I\'d like to order', ph: 'vorREI ordiNAreh', ans: 'Dimmi pure! / Prego, cosa prende?', ansen: 'Go ahead! / What will you have?' },
+    { nl: 'Eén espresso', it: 'Un caffè', en: 'An espresso', ph: 'oen kafFEH', ans: 'Subito! / Un attimo', ansen: 'Right away! / One moment' },
+    { nl: 'Cappuccino', it: 'Un cappuccino', en: 'A cappuccino', ph: 'oen kapputTSJIEno', ans: 'Subito! Con zucchero?', ansen: 'Right away! With sugar?' },
+    { nl: 'Een glas water', it: 'Un bicchiere d\'acqua', en: 'A glass of water', ph: 'oen bikKIEreh DAKwa', ans: 'Naturale o frizzante?', ansen: 'Still or sparkling?' },
+    { nl: 'Huiswijn rood / wit', it: 'Vino della casa rosso / bianco', en: 'House wine red / white', ph: 'VIEno DELla KAza ROSso / BIANko', ans: 'Un quarto o mezzo litro?', ansen: 'A quarter or half litre?' },
+    { nl: 'Ik ben vegetariër', it: 'Sono vegetariano/a', en: 'I\'m vegetarian', ph: 'SOno vedjietaRIAno', ans: 'Abbiamo piatti vegetariani', ansen: 'We have vegetarian dishes' },
+    { nl: 'Allergie voor...', it: 'Sono allergico/a a...', en: 'I\'m allergic to...', ph: 'SOno alLERdjiko a', ans: 'Capito, provvediamo', ansen: 'Understood, we\'ll take care of it' },
+    { nl: 'Lekker! / Heerlijk!', it: 'Delizioso! / Ottimo!', en: 'Delicious! / Excellent!', ph: 'delitsiOzo / OTtimo', ans: 'Grazie mille! Ci fa piacere!', ansen: 'Thank you very much! We\'re glad!' },
+    { nl: 'Nog één keer hetzelfde', it: 'Lo stesso ancora, per favore', en: 'The same again please', ph: 'lo STESso aNKOra per faVOreh', ans: 'Subito!', ansen: 'Right away!' },
+    { nl: 'De rekening alstublieft', it: 'Il conto, per favore', en: 'The bill please', ph: 'il KONto per faVOreh', ans: 'Subito! Paga in contanti o con carta?', ansen: 'Right away! Cash or card?' },
+    { nl: 'Is bediening inbegrepen?', it: 'Il servizio è incluso?', en: 'Is service charge included?', ph: 'il serVIEtsio eh inKLOEzo', ans: 'Sì, è incluso / No, non è incluso', ansen: 'Yes, it\'s included / No, it\'s not' },
+    { nl: 'Neem weg (takeaway)', it: 'Da portare via', en: 'To take away', ph: 'da porTAreh VIEa', ans: 'Va bene! Un momento', ansen: 'OK! One moment' },
+  ],
+  onderweg: [
+    { nl: 'Volbenzine / Diesel', it: 'Pieno di benzina / gasolio', en: 'Full tank petrol / diesel', ph: 'PIEno die benDZIEna / gaZOlio', ans: 'Self o servito?', ansen: 'Self-service or attended?' },
+    { nl: '... euro benzine', it: '... euro di benzina', en: '... euro of petrol', ph: 'OEro die benDZIEna', ans: 'Prego, pompa numero...', ansen: 'Go ahead, pump number...' },
+    { nl: 'Waar is...?', it: 'Dov\'è...?', en: 'Where is...?', ph: 'doVEH', ans: 'È a... km / Giri a destra/sinistra', ansen: 'It\'s ... km / Turn right/left' },
+    { nl: 'Rechtdoor / Links / Rechts', it: 'Dritto / Sinistra / Destra', en: 'Straight / Left / Right', ph: 'DRITto / siNIEstra / DEstra' },
+    { nl: 'Afslaan bij de rotonde', it: 'Girare alla rotatoria', en: 'Turn at the roundabout', ph: 'djiRAreh ALla rotaTOria', ans: 'La seconda / terza uscita', ansen: 'The second / third exit' },
+    { nl: 'Tol betalen', it: 'Pagare il pedaggio', en: 'Pay the toll', ph: 'paGAreh il peDAdjo', ans: 'Sono... euro', ansen: 'That\'s... euro' },
+    { nl: 'Ik heb pech', it: 'Ho un guasto / Sono in panne', en: 'I have a breakdown', ph: 'o oen GWASto / SOno in PANneh', ans: 'Chiamo il soccorso stradale', ansen: 'I\'ll call roadside assistance' },
+    { nl: 'De band is lek', it: 'Ho una gomma a terra', en: 'I have a flat tyre', ph: 'o OEna GOma a TERra', ans: 'C\'è un gommista qui vicino', ansen: 'There\'s a tyre shop nearby' },
+    { nl: 'Hoe laat vertrekt de veerboot?', it: 'A che ora parte il traghetto?', en: 'What time does the ferry leave?', ph: 'a keh ORa PARteh il traGETto', ans: 'Parte alle... / Il prossimo è alle...', ansen: 'It leaves at... / The next one is at...' },
+    { nl: 'Parkeren verboden', it: 'Divieto di sosta', en: 'No parking', ph: 'diVIEto die SOSta' },
+    { nl: 'Ik heb hulp nodig', it: 'Ho bisogno di aiuto', en: 'I need help', ph: 'o biZONjo die aIOEto', ans: 'Come posso aiutarla?', ansen: 'How can I help you?' },
+  ],
+  nood: [
+    { nl: 'Help!', it: 'Aiuto!', en: 'Help!', ph: 'aIOEto' },
+    { nl: 'Bel een ambulance!', it: 'Chiami un\'ambulanza!', en: 'Call an ambulance!', ph: 'KIAmie oen amboeLANtsa', ans: 'Sto chiamando il 118!', ansen: 'I\'m calling 118!' },
+    { nl: 'Bel de politie!', it: 'Chiami la polizia!', en: 'Call the police!', ph: 'KIAmie la poliTSIEa', ans: 'Sto chiamando il 113!', ansen: 'I\'m calling 113!' },
+    { nl: 'Er is een ongeluk', it: 'C\'è stato un incidente', en: 'There has been an accident', ph: 'tsjeh STAto oen intsiDENteh', ans: 'Dove siete? Mando i soccorsi', ansen: 'Where are you? I\'ll send help' },
+    { nl: 'Ik ben gewond / ziek', it: 'Sono ferito/a / malato/a', en: 'I am injured / ill', ph: 'SOno feRIEto / maLAto', ans: 'Dove fa male? Chiamo il medico', ansen: 'Where does it hurt? I\'ll call a doctor' },
+    { nl: 'Dokter / Ziekenhuis', it: 'Medico / Ospedale', en: 'Doctor / Hospital', ph: 'MEEdiko / ospeDALeh', ans: 'L\'ospedale più vicino è a...', ansen: 'The nearest hospital is at...' },
+    { nl: 'Apotheek', it: 'Farmacia', en: 'Pharmacy', ph: 'farmatSJIEa', ans: 'La farmacia è in...', ansen: 'The pharmacy is in...' },
+    { nl: 'Pijnstillers', it: 'Antidolorifici', en: 'Painkillers', ph: 'antidoloRIEfitsjie', ans: 'Abbiamo paracetamolo / ibuprofene', ansen: 'We have paracetamol / ibuprofen' },
+    { nl: 'Ik ben allergisch voor...', it: 'Sono allergico/a a...', en: 'I\'m allergic to...', ph: 'SOno alLERdjiko a', ans: 'Lo segno sulla scheda', ansen: 'I\'ll note it on the form' },
+    { nl: 'Mijn spullen zijn gestolen', it: 'Mi hanno rubato le cose', en: 'My belongings have been stolen', ph: 'mie ANno roeBAto leh KOzeh', ans: 'Dobbiamo fare la denuncia', ansen: 'We need to file a police report' },
+    { nl: 'Verzekering', it: 'Assicurazione', en: 'Insurance', ph: 'assikoeratsiONeh', ans: 'Ha i documenti dell\'assicurazione?', ansen: 'Do you have your insurance documents?' },
+    { nl: 'Brand! / Vuur!', it: 'Al fuoco! / Incendio!', en: 'Fire!', ph: 'al FOEwoko / inTSJENdio', ans: 'Sto chiamando il 115!', ansen: 'I\'m calling 115!' },
+    { nl: 'Ik ben verdwaald', it: 'Mi sono perso/a', en: 'I am lost', ph: 'mie SOno PERso', ans: 'Dove vuole andare? Le mostro la mappa', ansen: 'Where do you want to go? I\'ll show you the map' },
+  ],
+};
+
+const numbers = [
+  [0,'zero'],[1,'uno'],[2,'due'],[3,'tre'],[4,'quattro'],
+  [5,'cinque'],[6,'sei'],[7,'sette'],[8,'otto'],[9,'nove'],
+  [10,'dieci'],[20,'venti'],[50,'cinquanta'],[100,'cento']
+];
+
+const customs = [
+  { icon: '☕', title: 'Koffiecultuur', text: 'Cappuccino drink je <strong>alleen \'s ochtends</strong> — na een maaltijd is dat een doodzonde in Italiaanse ogen. Bestel na het eten een espresso (<em>un caffè</em>). Aan de bar is het goedkoper dan aan tafel.' },
+  { icon: '🕐', title: 'Tijdsbesef & Ritme', text: 'Italië heeft een ander dagritme. Winkels sluiten tussen <strong>13:00–16:00</strong> voor <em>riposo</em>. Avondeten begint zelden voor 20:00. Haast is onbeleefd — geniet van het tempo.' },
+  { icon: '🤝', title: 'Begroeten', text: 'Italianen begroeten met <strong>twee zoenen</strong> op de wang als ze je kennen. Bij onbekenden is een handdruk en oogcontact de norm. Gebruik <em>Lei</em> (formeel) of <em>tu</em> (informeel) — volg de ander.' },
+  { icon: '🍽️', title: 'Eten & Tafelmanieren', text: '<em>Prego</em> betekent zowel "alsjeblieft" als "geen dank" als "kom binnen". Wacht op <em>buon appetito</em> voor je begint. <strong>Brood</strong> is om saus mee op te deppen (<em>fare la scarpetta</em>) — volkomen normaal.' },
+  { icon: '👗', title: 'Kleding bij kerken', text: 'Voor kerken en kathedralen gelden strenge regels: <strong>schouders en knieën bedekt</strong>. Houd een sjaal of lichte doek bij de hand in je rugzak.' },
+  { icon: '🏖️', title: 'Stranden op Sardinië', text: 'Veel mooie stranden zijn <strong>gedeeltelijk privé</strong> (<em>stabilimento balneare</em>) met ligbedverhuur. Het deel zonder parasols is altijd gratis. Zand en stenen meenemen is <strong>verboden bij wet</strong> — boete tot €3.000.' },
+  { icon: '🧂', title: 'Sardijnse trots', text: 'Sardiniërs zijn <strong>trots op hun eiland en cultuur</strong> — het is géén Italië in hun beleving. Complimenten over <em>Pecorino</em>, <em>Cannonau</em> wijn of lokale producten worden enorm gewaardeerd. Zeg nooit dat alles hetzelfde is als "op het vasteland".' },
+  { icon: '💶', title: 'Fooi geven', text: 'Fooi (<em>mancia</em>) is niet verplicht maar wordt gewaardeerd. Rond af naar boven of laat 1-2 euro liggen. In een bar hoef je geen fooi te geven. Bij bediening aan tafel is 5-10% netjes.' },
+  { icon: '🚗', title: 'Rijden op Sardinië', text: 'Wegen buiten de kust zijn smal en bochtig — rij rustig. <strong>Binnenrijden in blauwe zones</strong> kost geld (betaalmachine). Parkeergarages hebben niet altijd hoogtebeperkingen voor campers — check van tevoren.' },
+  { icon: '🛒', title: 'Markt & Onderhandelen', text: 'Op <em>mercato</em> (markt) is onderhandelen bij niet-voedsel normaal. Raak producten niet aan zonder toestemming. Zeg altijd <em>buongiorno</em> voor je iets vraagt — zonder begroeting is het onbeleefd.' },
+  { icon: '🌊', title: 'Zee & Natuur', text: 'Het water is helder maar kan <strong>gevaarlijke stroming</strong> hebben in smalle baaien. Rood vlag = zwemverbod. Zeepositonenat (<em>meduse</em> = kwallen) zijn heel gewoon in augustus — vraag lokaal advies.' },
+  { icon: '🫒', title: 'Lokale producten proberen', text: '<strong>Pecorino Sardo</strong> (schapenkaas), <strong>bottarga</strong> (gedroogde viskuit), <strong>pane carasau</strong> (krokant flatbread) en <strong>Cannonau</strong> (lokale rode wijn) zijn essentieel. Koop op boerenmarkten — veel lekkerder en goedkoper.' },
+];
+
+// ===================== RENDER =====================
+function phraseCard(p) {
+  const ansBlock = p.ans ? `
+    <div class="phrase-ans-wrap">
+      <div class="phrase-ans-label">Verwacht antwoord</div>
+      <div class="phrase-ans-it">🇮🇹 ${p.ans}</div>
+      ${p.ansen ? `<div class="phrase-ans-en">🇬🇧 ${p.ansen}</div>` : ''}
+    </div>` : '';
+  return `<div class="phrase-card">
+    <div class="phrase-text">
+      <div class="phrase-nl">🇳🇱 ${p.nl}</div>
+      <div class="phrase-it">🇮🇹 ${p.it}</div>
+      ${p.en ? `<div class="phrase-en">🇬🇧 ${p.en}</div>` : ''}
+      <div class="phrase-ph">📢 ${p.ph}</div>
+      ${ansBlock}
+    </div>
+    <button class="speak-btn-small" onclick="speak('${p.it.replace(/'/g,"\\'")}')">🔊</button>
+  </div>`;
+}
+
+function renderAll() {
+  document.getElementById('phrases-basis').innerHTML = phrases.basis.map(phraseCard).join('');
+  document.getElementById('phrases-dagen').innerHTML = phrases.dagen.map(phraseCard).join('');
+  document.getElementById('phrases-camper').innerHTML = phrases.camper.map(phraseCard).join('');
+  document.getElementById('phrases-boodschappen').innerHTML = phrases.boodschappen.map(phraseCard).join('');
+  document.getElementById('phrases-horeca').innerHTML = phrases.horeca.map(phraseCard).join('');
+  document.getElementById('phrases-onderweg').innerHTML = phrases.onderweg.map(phraseCard).join('');
+  document.getElementById('phrases-nood').innerHTML = phrases.nood.map(phraseCard).join('');
+
+  // Numbers
+  document.getElementById('num-grid').innerHTML = numbers.map(([n,w]) =>
+    `<div class="num-cell"><div class="num-n">${n}</div><div class="num-w">${w}</div></div>`
+  ).join('');
+
+  // Customs
+  document.getElementById('customs-list').innerHTML = customs.map(c =>
+    `<div class="custom-card">
+      <div class="custom-title">${c.icon} ${c.title}</div>
+      <div class="custom-text">${c.text}</div>
+    </div>`
+  ).join('');
+
+  document.getElementById('sights-list').innerHTML = sights.map(sightCard).join('');
+  document.getElementById('campings-list').innerHTML = campings.map(campCard).join('');
+}
+
+// ===================== TAB SWITCHING =====================
+function showTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  document.getElementById('searchResults').style.display = 'none';
+  document.getElementById('searchBox').value = '';
+}
+
+// ===================== SEARCH =====================
+function doSearch(q) {
+  q = q.trim().toLowerCase();
+  const resultsEl = document.getElementById('searchResults');
+
+  if (!q) {
+    resultsEl.style.display = 'none';
+    document.querySelectorAll('.section').forEach(s => {
+      if (s.id === 'tab-basis') s.classList.add('active');
+      else s.classList.remove('active');
+    });
+    document.querySelectorAll('.tab')[0].classList.add('active');
+    return;
+  }
+
+  // Hide sections, show results
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  resultsEl.style.display = 'block';
+
+  const all = Object.values(phrases).flat();
+  const hits = all.filter(p =>
+    p.nl.toLowerCase().includes(q) ||
+    p.it.toLowerCase().includes(q) ||
+    p.ph.toLowerCase().includes(q)
+  );
+
+  if (hits.length === 0) {
+    resultsEl.innerHTML = '<div class="no-results">Geen resultaten gevonden voor "' + q + '"</div>';
+  } else {
+    resultsEl.innerHTML = `<div style="padding:0 0 12px;font-size:0.8rem;color:var(--muted)">${hits.length} resultaten</div>` +
+      hits.map(phraseCard).join('');
+  }
+}
+
+// ===================== SPEECH =====================
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  function doSpeak() {
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = 'it-IT';
+    utt.rate = 0.82;
+    const voices = window.speechSynthesis.getVoices();
+    const v = voices.find(v => v.lang.startsWith('it'));
+    if (v) utt.voice = v;
+    window.speechSynthesis.speak(utt);
+  }
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length > 0) doSpeak();
+  else { window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.onvoiceschanged = null; doSpeak(); }; setTimeout(doSpeak, 400); }
+}
+
+const sights = [
+  { n:1,  name:'Su Nuraxi di Barumini', loc:'Barumini, Midden-Sardinie', tags:['UNESCO','Prehistorie','Cultuur'], desc:'De bekendste nuraghe van Sardinie, gebouwd rond 1500 v.Chr. en erkend als UNESCO Werelderfgoed. Het centrale toren-complex is nog 15 meter hoog. Rondom zie je een heel dorp van bijgebouwen. Verplichte stop voor wie de prehistorische Sardijnse cultuur wil begrijpen.', url:'https://www.fondazionebarumini.it', tel:'+39 070 936 8128' },
+  { n:2,  name:'Grotta di Nettuno', loc:'Capo Caccia, bij Alghero, Noord-West', tags:['Natuur','Grotten','Boot/trap'], desc:'Spectaculaire zeegrot in 110 meter hoge kliffen. Te bereiken per boot vanuit Alghero of via de Escala del Cabirol - 654 treden uitgehakt in de rotswand. Binnen indrukwekkende stalactieten en het ondergrondse La Marmora-meer. Alleen bij rustige zee open.', url:'https://www.grottenettuno.it', tel:'+39 079 979 054' },
+  { n:3,  name:'Gola di Gorropu', loc:'Supramonte, bij Dorgali, Oost', tags:['Wandelen','Natuur','Kloof'], desc:'Een van de diepste kloven van Europa - rotswanden tot 500 meter hoog, 1500 meter lang. Entree 5 euro. Neem genoeg water mee. Absoluut de mooiste hike op het eiland.', url:'https://www.gorropu.com', tel:'+39 0784 96 243' },
+  { n:4,  name:'La Maddalena Archipel', loc:'Noord-Sardinie, bij Palau', tags:['Eilanden','Strand','Natuur'], desc:'Nationaal park van tientallen eilanden met het blauwste water van de Middellandse Zee. Veerboot vanuit Palau. Dolfijnen spotten normaal.', url:'https://www.lamaddalenapark.it', tel:'+39 0789 790 211' },
+  { n:5,  name:'Alghero - Oude Stad', loc:'Alghero, Noord-West Sardinie', tags:['Stad','Cultuur','Spaans'], desc:'Schilderachtige havenstad met Spaans-Catalaanse invloeden. Wandel over de 16e-eeuwse stadsmuren langs de zee. Gezellige terrassen, lokale wijnen en zeevruchten.', url:'https://www.comune.alghero.ss.it' },
+  { n:6,  name:'Cagliari - Hoofdstad', loc:'Cagliari, Zuid Sardinie', tags:['Stad','Cultuur','Markt'], desc:'De trotse hoofdstad. Klimmen naar de Bastione San Remy voor panoramazicht, bezoek het Romeinse amfitheater, dwaal door de Castello-wijk. San Benedetto markt is de grootste overdekte markt van Italie.', url:'https://www.comune.cagliari.it' },
+  { n:7,  name:'Costa Smeralda', loc:'Noordoost Sardinie, bij Olbia', tags:['Strand','Luxe','Natuur'], desc:'De beroemde Smaragdkust - 55 km kustlijn met het meest turquoise water. Porto Cervo is het jachthavencentrum. Spiaggia del Principe behoort tot de mooiste stranden van Europa.', url:'https://www.sardegnaturismo.it' },
+  { n:8,  name:'Castelsardo', loc:'Noord Sardinie, Golf van Asinara', tags:['Middeleeuws','Uitzicht','Cultuur'], desc:'Middeleeuwse stad op een vulkanische rots. Kasteel Doria is nu een weefkunstmuseum. Bij helder weer zie je Corsica. Vlakbij de Roccia del Elefante.', url:'https://www.comune.castelsardo.ss.it', tel:'+39 079 470 283' },
+  { n:9,  name:'Golfo di Orosei', loc:'Oost Sardinie, bij Cala Gonone', tags:['Strand','Boot','Natuur'], desc:'Prachtige baai met stranden alleen bereikbaar per boot of hike. Cala Luna, Cala Sisine en Cala Mariolu zijn hoogtepunten. Boot huren in Cala Gonone.', url:'https://www.dolcevitasardinia.com' },
+  { n:10, name:'Villasimius', loc:'Zuid-Oost Sardinie', tags:['Strand','Natuur','Snorkelen'], desc:'Voormalig vissersdorp op een landtong omringd door zee. Beschermd marien reservaat. Capo Carbonara biedt prachtige snorkelmogelijkheden.', url:'https://www.comune.villasimius.ca.it' },
+  { n:11, name:'Spiaggia La Pelosa', loc:'Stintino, Noord-West Sardinie', tags:['Strand','Iconisch','Zonsondergang'], desc:'Het meest gefilmde strand van Sardinie. Reservering vereist in hoogseizoen (max. 1500 bezoekers/dag). Vroeg komen voor de beste plekken.', url:'https://www.lapolosastintino.it', tel:'+39 079 523 007' },
+  { n:12, name:'Barbagia - Authentiek binnenland', loc:'Centraal Sardinie, rond Nuoro', tags:['Cultuur','Authentiek','Bergen'], desc:'Het ruige hartland van Sardinie. Dorpjes als Orgosolo staan vol politieke muurschilderingen. Hier eet je de meest authentieke Sardijnse keuken.', url:'https://www.barbagiaviaggi.it' },
+  { n:13, name:'Cala Gonone', loc:'Oost Sardinie, bij Dorgali', tags:['Strand','Wandelen','Boot'], desc:'Klein kustplaatsje uitvalsbasis voor de Golfo di Orosei. Van hier vertrekken boten naar ontoegankelijke stranden en grotten. Wandelroutes richting Gorropu starten vlakbij.', url:'https://www.calagononeonline.it' },
+  { n:14, name:'Parco Nazionale Asinara', loc:'Asinara eiland, Noord-West', tags:['Natuur','Eiland','Wilde dieren'], desc:'Voormalig gevangeniseiland, nu nationaal park. Geen auto\'s - rondritten per voertuig of fiets. Witte albino-ezels lopen vrij rond.', url:'https://www.parcoasinara.org', tel:'+39 079 503 388' },
+  { n:15, name:'Nuoro', loc:'Nuoro, Oost-Centraal Sardinie', tags:['Stad','Cultuur','Museum'], desc:'Het culturele hart van Sardinie. Museo della Vita e delle Tradizioni Sarde toont klederdrachten en ambacht. Uitstekend vertrekpunt voor de Barbagia.', url:'https://www.museoetnografico.sardegna.it', tel:'+39 0784 257 035' },
+  { n:16, name:'Bosa', loc:'West Sardinie, aan de Rivier Temo', tags:['Stad','Kleurrijk','Rivier'], desc:'Het kleurrijkste stadje van Sardinie aan de enige bevaarbare rivier. Pastelkleurige huizen klimmen tegen de heuvel op naar het Castello Malaspina.', url:'https://www.comune.bosa.or.it' },
+  { n:17, name:'Spiaggia di Chia', loc:'Zuid-Sardinie, Costa del Sud', tags:['Strand','Duinen','Flamingos'], desc:'Uitgestrekt strand met zandduinen en een lagune waar flamingos leven. De SP71 kustroute is een van de mooiste autoroutes van het eiland.', url:'https://www.sardegnaturismo.it' },
+  { n:18, name:'Tharros - Romeinse Ruines', loc:'Schiereiland Sinis, Oristano', tags:['Archeologie','Romeins','Zee'], desc:'Indrukwekkende Romeinse en Fenicische ruines op een schiereiland omgeven door zee. Tempi, zuilen, badhuizen en mozaieken.', url:'https://www.tharros.sardegna.it', tel:'+39 0783 370 019' },
+  { n:19, name:'Parco Nazionale Gennargentu', loc:'Centraal-Oost Sardinie', tags:['Natuur','Bergen','Wandelen'], desc:'Het hoogste gebergte met de Punta La Marmora (1834m). Wilde natuur, adelaars, moeflons en reeen. Spectaculaire uitzichten.', url:'https://www.parks.it/parco.nazionale.gennargentu' },
+  { n:20, name:'Santa Cristina Bronnentempel', loc:'Paulilatino, Midden-Sardinie', tags:['Prehistorie','Mysterie','Cultuur'], desc:'Een van de best bewaarde nuragische heilige bronnen uit 1000 v.Chr. Het licht valt bij elke zonsverduistering perfect op het water.', url:'https://www.santacristina.sardegna.it', tel:'+39 0785 55438' },
+  { n:21, name:'Capo Testa', loc:'Santa Teresa di Gallura, Uiterste Noorden', tags:['Natuur','Rotsvorming','Uitzicht'], desc:'Bizarre granieten rotsformaties aan de noordpunt. Zwemmen in kleine azuurblauwe baaitjes. Op heldere dagen zichtbaar: Corsica.', url:'https://www.comune.santateresagallura.ot.it' },
+  { n:22, name:'Piscinas Strand en Duinen', loc:'West Sardinie, bij Arbus', tags:['Strand','Duinen','Ongerept'], desc:'De hoogste zandduinen van Europa (60 meter) aan een ongerept strand. Nauwelijks toeristen. Alleen bereikbaar via een smal zandweggetje.', url:'https://www.comune.arbus.vs.it' },
+  { n:23, name:'Roccia Elefante', loc:'Bij Castelsardo, Noord Sardinie', tags:['Natuur','Rotsvorming','Prehistorie'], desc:'Rotsformatie in de vorm van een olifant. In de romp zijn prehistorische domus de janas uitgehouwen. Gratis te bezoeken langs de SS134.' },
+  { n:24, name:'Orgosolo Muurschilderingen', loc:'Orgosolo, Barbagia, Centraal', tags:['Cultuur','Kunst','Authentiek'], desc:'Meer dan 150 politieke muurschilderingen op de muren van dit bergdorp - begonnen in de jaren 70. Een indrukwekkende openluchtgalerij.', url:'https://www.comune.orgosolo.nu.it' },
+  { n:25, name:'Isola di Sant Antioco', loc:'Zuid-West Sardinie, verbonden per brug', tags:['Eiland','Archeologie','Lokaal'], desc:'Het grootste eiland voor de kust. Fenicische stad met catacomben. De lokale bevolking weeft nog altijd byssus (zeezijde).', url:'https://www.comune.santantioco.ci.it', tel:'+39 0781 800 253' },
+  { n:26, name:'Lago Omodeo', loc:'Midden-Sardinie, bij Ghilarza', tags:['Natuur','Reservoir','Rustig'], desc:'Het grootste stuwmeer van Sardinie in een spectaculair berglandschap. Weinig toeristen, rust en stilte. Ghilarza was de jeugdstad van Antonio Gramsci.' },
+  { n:27, name:'Cagliari Cattedrale en Castello', loc:'Cagliari Centrum, Zuid', tags:['Stad','Cultuur','Uitzicht'], desc:'De kathedraal (13e eeuw) op de hoogste punt van de stad. Vanuit de Bastione San Remy panoramisch uitzicht over de baai.', url:'https://www.duomodicagliari.it', tel:'+39 070 663 837' },
+  { n:28, name:'Spiaggia di Cala Luna', loc:'Golfo di Orosei, Oost', tags:['Strand','Boot','Grotten'], desc:'Misschien het mooiste strand van Sardinie - een halve maan van wit zand omgeven door kliffen. Alleen per boot of zware hike (3 uur).', url:'https://www.calagononeonline.it' },
+  { n:29, name:'Foresta di Montes', loc:'Orgosolo, Centraal Sardinie', tags:['Natuur','Oerbos','Wandelen'], desc:'Een van de laatste ongerepte eikenbossen van Europa - bomen tot 600 jaar oud. Wilde orchideeen in het voorjaar, moeflons op het pad.' },
+  { n:30, name:'Nora - Fenicische Havenstad', loc:'Pula, Zuid Sardinie', tags:['Archeologie','Romeins','Zee'], desc:'De best bewaarde antieke stad van Sardinie, deels onder water. Mozaieken, thermae, een theater en een tempel op een schiereiland.', url:'https://www.coopnovas.it/nora', tel:'+39 070 920 9138' },
+  { n:31, name:'Valle della Luna', loc:'Aggius, Noord Sardinie bij Tempio', tags:['Natuur','Rotsvorming','Mystiek'], desc:'Vallei vol bizarre granieten rotsformaties die in de schemering lijken op een maanlandschap. Vlakbij Aggius met een bijzonder bandieten-museum.' },
+  { n:32, name:'Spiaggia di Cala Mariolu', loc:'Golfo di Orosei, Oost', tags:['Strand','Boot','Snorkelen'], desc:'Kiezelstrand in een beschermde baai met helder water - zichtbaarheid tot 30 meter. Een van de mooiste snorkelplekken van de Middellandse Zee. Alleen per boot vanuit Cala Gonone.' },
+  { n:33, name:'Tempio Pausania', loc:'Gallura, Noord-Oost Sardinie', tags:['Stad','Wijn','Graniet'], desc:'Bergstadje omgeven door granietrotsen en kurkeikenbossen. Bekende wijnstreek (Vermentino di Gallura DOCG). Carnaval hier is een van de bijzonderste van het eiland.', url:'https://www.comune.tempio-pausania.ot.it' },
+  { n:34, name:'Parco di Porto Conte', loc:'Bij Alghero, Noord-West', tags:['Natuur','Paarden','Kust'], desc:'Regionaal natuurpark met wilde paarden, roofvogels en karst-landschappen. Wandel- en fietspaden met uitzicht op de Golf van Porto Conte.', url:'https://www.parcodiportoconte.it', tel:'+39 079 945 005' },
+  { n:35, name:'Grotte di Su Marmuri', loc:'Ulassai, Ogliastra, Oost-Centraal', tags:['Grotten','Natuur','Verborgen'], desc:'Indrukwekkende stalagmietengrot in het bergdorp Ulassai - minder bekend dan Neptunus maar minstens zo mooi. Vlakbij een spectaculaire waterval.', url:'https://www.grotte-sardegna.it', tel:'+39 0782 787 29' },
+  { n:36, name:'Spiaggia Budelli - Roze Strand', loc:'La Maddalena Archipel, Noord', tags:['Strand','Eiland','Uniek'], desc:'Beroemd om zijn roze tint door schelpen van micro-organismen. Betreden verboden maar per boot goed te zien en te fotograferen.', url:'https://www.lamaddalenapark.it' },
+  { n:37, name:'Carloforte - Eiland San Pietro', loc:'Zuid-West Sardinie, veerboot vanuit Calasetta', tags:['Eiland','Tonijn','Cultuur'], desc:'Uniek eiland bewoond door Liguriers met Genua-dialect. Jaarlijkse tonijnvangst (mattanza) is een eeuwenoud ritueel. Veerboot vanuit Calasetta (15 min).', url:'https://www.comune.carloforte.su.it', tel:'+39 0781 854 009' },
+  { n:38, name:'Cagliari Poetto Strand', loc:'Cagliari, Zuid Sardinie', tags:['Strand','Stad','Flamingo'], desc:'Acht kilometer lang stadsstrand naast de hoofdstad. Achter het strand een zoutpan waar flamingos leven. Gevuld met locals in de avond.' },
+  { n:39, name:'Oristano en Sinis', loc:'West Sardinie, Oristano provincie', tags:['Cultuur','Strand','Archeologie'], desc:'Authentieke Sardijnse stad zonder massatoerisme. Schiereiland Sinis heeft de mooiste stranden van west-Sardinie (Is Arutas, Mari Ermi) en de ruines van Tharros.', url:'https://www.comune.oristano.it' },
+  { n:40, name:'Spiaggia Is Arutas', loc:'Schiereiland Sinis, bij Oristano', tags:['Strand','Uniek','Kwarts'], desc:'Het rijststrand - wit zand van afgeronde kwartskorreltjes. Ondiep en kristalhelder water. Zand meenemen is wettelijk verboden.' },
+  { n:41, name:'Aggius en Omgeving', loc:'Gallura, Noord-Oost Sardinie', tags:['Authentiek','Bergen','Cultuur'], desc:'Pittoresk granietdorp in de Gallura. Bijzonder museum over bandietisme. Omgeven door de fantastische Valle della Luna.', url:'https://www.comune.aggius.ot.it' },
+  { n:42, name:'Spiaggia del Principe', loc:'Costa Smeralda, Noord-Oost', tags:['Strand','Luxe','Natuur'], desc:'Regelmatig verkozen tot mooiste strand van Italie - beschermd in een baai met granietrotsen. Wit zand, smaragdgroen water. Geen beach-bar, puur natuur.' },
+  { n:43, name:'Lago di Baratz', loc:'Bij Porto Ferro, Noord Sardinie', tags:['Natuur','Meer','Rustig'], desc:'Het enige natuurlijke zoetwatermeer van Sardinie. Op korte loopafstand van het wilde Porto Ferro strand. Vogelparadijs.' },
+  { n:44, name:'Sardara Thermale Baden', loc:'Sardara, Midden-Sardinie', tags:['Wellness','Thermaal','Cultuur'], desc:'Al in de nuragische tijd heilig verklaard thermaal water. Terme di Sardara biedt zwembaden op 38 graden Celsius.', url:'https://www.termesardara.it', tel:'+39 070 938 7200' },
+  { n:45, name:'Capo Caccia Klif', loc:'Bij Alghero, Noord-West', tags:['Natuur','Uitzicht','Kliffen'], desc:'Spectaculaire 165 meter hoge klif. Parkeerplaats bovenop met overweldigend uitzicht. Hieronder de Grotta di Nettuno. Bij zonsondergang goud.' },
+  { n:46, name:'Su Gorropu via Flumineddu', loc:'Supramonte, Oost-Centraal', tags:['Wandelen','Kloof','Avontuur'], desc:'De langere maar toegankelijkere route naar de Gorropu kloof via de Flumineddu rivier. Circa 4-5 uur retour.', url:'https://www.gorropu.com' },
+  { n:47, name:'Bortigali en Marghine Bergen', loc:'Marghine, Centraal-Noord Sardinie', tags:['Verborgen','Bergen','Authentiek'], desc:'Bijna onontdekt berggebied. Kleine dorpjes waar je de enige toerist bent. Ideaal voor de camper die de massa wil ontvluchten.' },
+  { n:48, name:'Santa Teresa di Gallura', loc:'Uiterste Noorden Sardinie', tags:['Haven','Uitzicht','Corsica'], desc:'Het meest noordelijke stadje met uitzicht op Corsica op 12 km. Veerbootverbinding naar Bonifacio op Corsica mogelijk.', url:'https://www.comune.santateresagallura.ot.it', tel:'+39 0789 754 127' },
+  { n:49, name:'Seui en Ogliastra Bergen', loc:'Ogliastra, Oost-Centraal Sardinie', tags:['Verborgen','Bergen','Wandelen'], desc:'De dunst bevolkte provincie van Sardinie - wild en ongerept. Onderdeel van de Blue Zone, oudste mensen ter wereld wonen hier.', url:'https://www.sardegnaturismo.it' },
+  { n:50, name:'Caprera - Garibaldi Eiland', loc:'La Maddalena Archipel, Noord', tags:['Geschiedenis','Eiland','Natuur'], desc:'Het laatste thuis van nationale held Giuseppe Garibaldi. Zijn villa is een nationaal monument. Bereikbaar over een dam vanuit La Maddalena.', url:'https://www.compendiogaribaldino.it', tel:'+39 0789 727 162' },
+];
+
+const campings = [
+  { n:1,  name:'Camping Village Capo d\'Orso', loc:'Palau, Noord Sardinie', stars:'★★★★', feats:['Direct aan zee','Ruime plaatsen','Sanitair top','Maddalena nabij'], desc:'Een van de beste campings van het eiland, direct aan de kust. Ruime plaatsen op glooiend terrein. Uitstekend sanitair. Ideale basis voor de Maddalena Archipel.', url:'https://www.baiaholiday.com/capo-d-orso', tel:'+39 0789 702 007' },
+  { n:2,  name:'Camping Tiliguerta Glamping Village', loc:'Costa Rei, Zuid-Oost Sardinie', stars:'★★★★', feats:['9km strand','Groot zwembad','Hondenstrand'], desc:'Prachtig gelegen bij de 9 km lange witte Costa Rei. Groot zwembad, pizzeria, minimarkt. Eigen hondengebied met strandje.', url:'https://www.tiliguerta.com', tel:'+39 070 991 560' },
+  { n:3,  name:'Camping Torre del Porticciolo', loc:'Porto Conte Natuurpark, bij Alghero', stars:'★★★★', feats:['Midden in natuur','Glamping','Rustig'], desc:'Gelegen midden in het Porto Conte Natuurpark. Mix van staanplaatsen en glamping. Op 15 min van Alghero en fietsafstand van Capo Caccia.', url:'https://www.torreporticciolo.com', tel:'+39 079 919 007' },
+  { n:4,  name:'Camping Capo Ferrato', loc:'Costa Rei, Zuid-Oost Sardinie', stars:'★★★', feats:['Direct aan strand','Sardijnse avonden','Sfeervol'], desc:'Kleine camping direct aan zee. Vriendelijk personeel met Sardijnse avonden. Met de camper letterlijk aan het strand staan.', url:'https://www.campingcapoferrato.it', tel:'+39 070 991 012' },
+  { n:5,  name:'Camping Baia Blu La Tortuga', loc:'Aglientu, Noord Sardinie', stars:'★★★★', feats:['Bebost','Terrassen','Zee vlakbij'], desc:'Camping in een bos met terrasplaatsen op korte loopafstand van de zee. ANWB-gecertificeerd. Rustige omgeving in het noorden.', url:'https://www.baiablu.com', tel:'+39 079 602 001' },
+  { n:6,  name:'Centro Vacanze Isuledda', loc:'Cannigione di Arzachena, Noord-Oost', stars:'★★★★', feats:['Baai direct','Uitzicht','Watersporten'], desc:'Fantastische ligging direct aan een baai. Uitzicht over zee en eilandjes. Watersporten direct beschikbaar.', url:'https://www.isuledda.it', tel:'+39 0789 86 003' },
+  { n:7,  name:'Camping Laguna Blu - Baia Holiday', loc:'Riviera del Corallo, bij Alghero', stars:'★★★★', feats:['Groot zwembad','Strand','Luchthaven nabij'], desc:'Grote 4-sterrencamping aan de kust halverwege vliegveld en Alghero. Uitgebreid zwembadencomplex. Avondanimatie voor alle leeftijden.', url:'https://www.baiaholiday.com/laguna-blu', tel:'+39 079 930 111' },
+  { n:8,  name:'Camping Cala d\'Ambra', loc:'San Teodoro, Noord-Oost Sardinie', stars:'★★★', feats:['Zicht op Tavolara','Rustige sfeer','Strand'], desc:'Fijne camping met zicht op eiland Tavolara. Rustige sfeer, voornamelijk volwassenen. Gezellig dorp San Teodoro op loopafstand.', url:'https://www.campingcaladambra.it', tel:'+39 0784 865 550' },
+  { n:9,  name:'Agriturismo S Ozzastru', loc:'Olbia regio, Noord-Sardinie', stars:'★★★', feats:['Biologisch eten','Boerderij sfeer','Rust'], desc:'Klein kampeerterrein bij een boerderij. Avonds biologisch Sardijns eten aan lange tafels. Uitzonderlijk vriendelijke eigenaren. Tijdig boeken.', tel:'+39 0789 56 143' },
+  { n:10, name:'Camping Cala Gonone', loc:'Cala Gonone, Oost Sardinie', stars:'★★★', feats:['Veel schaduw','Dorp nabij','Gorropu basis'], desc:'Prima camping met veel schaduw. Supermarkt en restaurants op loopafstand. Ideale basis voor Gorropu wandeling en Golfo di Orosei stranden.', url:'https://www.campingcalagononesardinia.com', tel:'+39 0784 93 165' },
+  { n:11, name:'Camping Arbatax Park', loc:'Arbatax, Oost Sardinie', stars:'★★★', feats:['Aan de baai','Zonsondergang','Rotsstranden nabij'], desc:'Mooi gelegen aan de baai van Arbatax met prachtige zonsondergangen. Vlakbij de beroemde rode porfier rotsformaties.', url:'https://www.arbataxpark.com', tel:'+39 0782 667 140' },
+  { n:12, name:'Camping Torre Chia', loc:'Chia, Zuid Sardinie', stars:'★★★', feats:['Heel jaar open','Strand nabij','Duinen'], desc:'Rustige camping gescheiden van het strand door een klein bos. Heel het jaar open - een zeldzaamheid op Sardinie.', url:'https://www.campingtorrechia.com', tel:'+39 070 923 0054' },
+  { n:13, name:'Camping 4 Mori Family Village', loc:'Muravera, Zuid-Oost Sardinie', stars:'★★★★', feats:['Direct aan zee','Groot terrein','WiFi'], desc:'Grote 4-sterrencamping direct aan het strand. Eucalyptus plaatsen met schaduw. Vriendelijk team, goed restaurant.', url:'https://www.camping4mori.com', tel:'+39 070 999 0011' },
+  { n:14, name:'Area Sosta Torre di Bari', loc:'Barisardo, Oost Sardinie', stars:'★★', feats:['Camper-specifiek','Goedkoop','Strand nabij'], desc:'Specifieke camperplaats bij Barisardo. Water, lozingspunt en stroom aanwezig. Ideaal als tussenstop.', url:'https://www.sostacamperbarisardo.it' },
+  { n:15, name:'Camping Village Ultima Spiaggia', loc:'Costa Smeralda regio, Noord-Oost', stars:'★★★★', feats:['Families','Strand','Groot zwembad'], desc:'Stijlvolle camping in de Costa Smeralda regio. Groot zwembad en animatieprogramma.', url:'https://www.ultimaspiaggia.it', tel:'+39 0789 866 03' },
+  { n:16, name:'Camping Iscrixedda', loc:'Lotorai, bij Arbatax, Oost Sardinie', stars:'★★★', feats:['Strandtoegang','Pijnbos','Rustig'], desc:'Camping in pijnboom- en eucalyptusbos direct aan het strand bij Lotorai. Perfecte basis voor Cala Luna, Cala Sisine en Cala Gonone.', url:'https://www.campingiscrixedda.com', tel:'+39 0782 624 340' },
+  { n:17, name:'Camping Selema', loc:'Santa Lucia, Oost Sardinie', stars:'★★★', feats:['Strand naast','Zwembad','Gezellig'], desc:'Camping direct naast het strand met verzorgd zwembad. Populair bij Nederlandse en Belgische campergasten.', url:'https://www.campingselema.it', tel:'+39 0784 819 223' },
+  { n:18, name:'Area Sosta Silana', loc:'SS125 bij Gorropu Kloof, Oost', stars:'★★', feats:['Wandel-basis','Hoog gelegen','Camper-specifiek'], desc:'De hoogst gelegen camperplaats van Sardinie bij de afslag voor de Gorropu kloof. Water en stroom aanwezig.', tel:'+39 349 067 4451' },
+  { n:19, name:'Agricamping Mattagiana', loc:'Achterland van Bosa, West Sardinie', stars:'★★', feats:['Heel jaar open','Agriturismo','Authentiek'], desc:'Klein agricamping het hele jaar open. Authentieke sfeer met uitzicht over de heuvels. Goede basis voor Bosa en de westkust.', tel:'+39 335 591 8463' },
+  { n:20, name:'Camping Village Bella Sardinia', loc:'Valledoria, Noord-West Sardinie', stars:'★★★', feats:['Groot bos','Strand nabij','Variatie'], desc:'Camping in een uitgestrekt bos. Direct toegang tot het witte zandstrand.', url:'https://www.bellasardinia.it', tel:'+39 079 582 018' },
+  { n:21, name:'Spiaggia del Riso Camping Village', loc:'Villasimius, Zuid-Oost Sardinie', stars:'★★★★', feats:['Pijnbos','Strand direct','Beschermd gebied'], desc:'Camping in een enorm pijnbos van 60.000m2 direct aan zee bij Villasimius. Gelegen in een beschermd marien reservaat.', url:'https://www.spiaggiadeiriso.it', tel:'+39 070 791 052' },
+  { n:22, name:'Camping Coccorrocci', loc:'Costa Rei, Zuid-Oost Sardinie', stars:'★★★', feats:['Authentiek','Natuur-oase','Kleine schaal'], desc:'Kleinere authentieke camping in een natuurgebied direct naast het strand. Minder resort-gevoel, meer natuur en rust.', url:'https://www.campingcoccorrocci.com', tel:'+39 070 991 099' },
+  { n:23, name:'Area Sosta Abba Druche', loc:'Bij Bosa, West Sardinie', stars:'★★', feats:['Camper-specifiek','Bosa nabij','Goedkoop'], desc:'Camperplaats net buiten Bosa aan de rivier Temo. Water, stroom en lozing aanwezig.', url:'https://www.bosa.it' },
+  { n:24, name:'In Our Garden - Wijngaard', loc:'Quartu Sant Elena, bij Cagliari', stars:'★★★', feats:['Wijngaard','Uniek','Authentiek'], desc:'Kamperen in een wijngaard met mogelijkheid om mee te helpen op de boerderij. Sardijnse wijn proeven waar hij vandaan komt.', url:'https://www.inourgardenagriturismo.it', tel:'+39 070 882 038' },
+  { n:25, name:'Camping Capo d\'Orso Klassiek', loc:'Palau, Noord Sardinie', stars:'★★★', feats:['Familiebedrijf','Sinds 1965','Strandplaatsen'], desc:'Een van de eerste campings van Sardinie, gerund door dezelfde familie sinds 1965. Staanplaatsen direct aan zee. Vroeg reserveren is een must.', url:'https://www.capodorso.it', tel:'+39 0789 702 007' },
+];
+
+
+function contactLinks(url, tel) {
+  let html = '';
+  if (url || tel) {
+    html = '<div class="contact-row">';
+    if (url) html += `<a class="contact-link" href="${url}" target="_blank">🌐 Website</a>`;
+    if (tel) html += `<a class="contact-link" href="tel:${tel.replace(/\s/g,'')}">📞 ${tel}</a>`;
+    html += '</div>';
+  }
+  return html;
+}
+
+function sightCard(s) {
+  return `<div class="sight-card">
+    <div class="sight-header">
+      <span class="sight-num">#${s.n}</span>
+      <span class="sight-name">${s.name}</span>
+    </div>
+    <div class="sight-location">📍 ${s.loc}</div>
+    <div class="sight-desc">${s.desc}</div>
+    <div class="sight-tags">${s.tags.map(t=>`<span class="sight-tag">${t}</span>`).join('')}</div>
+    ${contactLinks(s.url, s.tel)}
+  </div>`;
+}
+
+function campCard(c) {
+  return `<div class="camp-card">
+    <div class="camp-header">
+      <span class="camp-num">#${c.n}</span>
+      <div>
+        <div class="camp-name">${c.name}</div>
+        <div class="stars">${c.stars}</div>
+      </div>
+    </div>
+    <div class="camp-location">📍 ${c.loc}</div>
+    <div class="camp-desc">${c.desc}</div>
+    <div class="camp-features">${c.feats.map(f=>`<span class="camp-feat">✓ ${f}</span>`).join('')}</div>
+    ${contactLinks(c.url, c.tel)}
+  </div>`;
+}
+
+renderAll();
+
+function scrollTabs(px) {
+  document.getElementById('tabsBar').scrollBy({ left: px, behavior: 'smooth' });
+}
+
+// PWA: Registreer Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log('Service Worker geregistreerd'))
+      .catch(e => console.log('SW registratie mislukt:', e));
+  });
+}
+
+// PWA: Installatie prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.getElementById('installBtn');
+  if (btn) btn.style.display = 'flex';
+});
+
+window.addEventListener('appinstalled', () => {
+  const btn = document.getElementById('installBtn');
+  if (btn) btn.style.display = 'none';
+  deferredPrompt = null;
+});
+
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+  }
+}</script>
+</body>
+</html>
