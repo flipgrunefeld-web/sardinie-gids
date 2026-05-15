@@ -1,0 +1,1 @@
+This is a simple web-app for people that are discovering Sardinia with a campervan. It has a small language guide for dutch/englis/italian phrases regarding road-stuff/horeca/campings/campervans. Besides that there are entry's for the top 50 campings on the island and a top 50 thin hs to see/do/experience and where to find them on the island or on the internet.
